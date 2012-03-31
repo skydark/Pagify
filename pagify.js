@@ -14,6 +14,7 @@
     this.defaults = {
       'pages': [],
       'default': null,
+      'contentFilter': null,
       'animation': 'show',
       'animationSpeed': 'normal',
       'animationOut': 'hide',
@@ -41,6 +42,7 @@
         else {
           // Fetch page content
           $.get(page+'.html', function(content) {
+            content = self.contentFilter(content);
             $(self)[self.settings.animationOut](self.settings.animationOutSpeed, function() {
               $(self).html(content)[self.settings.animation](self.settings.animationSpeed);
             })
@@ -54,6 +56,15 @@
         self.switchPage();
       });
 
+      // Set content filter
+      self.contentFilter = function(content) {
+          if (self.settings.contentFilter) {
+              return $(content).find(self.settings.contentFilter).html()
+          } else {
+              return content;
+          }
+      }
+
       // Load initial page - current hash or default page
       if(window.location.hash) self.switchPage();
       else if(self.settings['default']) self.switchPage(self.settings['default']);
@@ -65,6 +76,7 @@
       var pageLoads = self.settings.pages.length;
       $.each(self.settings.pages, function(ndx, page) {
         $.get(page+'.html', function(content) {
+          content = self.contentFilter(content);
           self.pages[page] = content;
           pageLoads--;
           //alert(pageLoads);
